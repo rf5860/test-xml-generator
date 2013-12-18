@@ -1,4 +1,6 @@
 (defproject test-file-generator "0.1.0-SNAPSHOT"
+  :main test-file-generator.core
+  :manifest {"Class-Path" "lib/cojure-1.5.1.jar"}
   :description "FIXME: write description"
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
