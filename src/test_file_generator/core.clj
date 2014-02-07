@@ -1,17 +1,7 @@
 (ns test-file-generator.core
-  (:gen-class))
-(require '[clojure.java.jdbc :as j])
-(use '[clojure.string :only [upper-case split join]])
-
-(def ora-db {:classname "oracle.jdbc.OracleDriver"
-             :subprotocol "oracle"
-             :subname "thin:@localhost:1521:orcl" 
-             :user "user"
-             :password "pwd"
-             })
-
-(def sample-queries
-  ["SELECT * FROM MWPTODO_STAT" "SELECT * FROM MSF010 WHERE TABLE_TYPE = 'N5'"])
+  (:gen-class)
+  (:require [clojure.java.jdbc :as j])
+  (:use [clojure.string :only [upper-case split join]]))
 
 (defn get-table-name
   [query]
@@ -19,7 +9,7 @@
 
 (defn convert-row-to-string
   [row]
-  (join " " (for [[k v] row] (str (upper-case (clojure.string/replace k ":" "")) "=\"" (upper-case v) "\""))))
+  (join " " (for [[k v] row] (str (upper-case (clojure.string/replace k ":" "")) "=\"" (upper-case (if v v "")) "\""))))
 
 (defn generate-dbunit-entry
   [table-name row]
@@ -43,14 +33,13 @@
     (doall (line-seq r))))
 
 (defn get-db-obj
-  [user pwd]
+  [server port sid user pwd]
   {:classname "oracle.jdbc.OracleDriver"
    :subprotocol "oracle"
-   :subname "thin:@localhost:1521:orcl" 
+   :subname (str "thin:@" server  ":" port ":" sid) 
    :user user
-   :password pwd
-   })
+   :password pwd})
 
 (defn -main
   [& args]
-  (println (generate-data-file (get-db-obj (nth args 0) (nth args 1)) (get-lines "queries.txt"))))
+  (println (generate-data-file (get-db-obj (nth args 0) (nth args 1) (nth args 2) (nth args 3) (nth args 4)) (get-lines "queries.txt"))))
